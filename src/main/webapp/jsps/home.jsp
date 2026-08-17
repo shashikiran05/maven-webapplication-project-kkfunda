@@ -46,7 +46,7 @@
 <body>
 
 <header>
-     <h1> WELCOME TO B10 KKDEVOPS NEW MORNING BATCH WILL START ON SEP 28 </h1>     
+     <h1> WELCOME TO B10 KKDEVOPS NEW EVENING BATCH WILL STARTED  ON APRIL 28 </h1>     
     <h3>Training | Development | Consulting</h3>
 </header>
 
