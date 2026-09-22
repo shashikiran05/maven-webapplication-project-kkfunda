@@ -33,17 +33,17 @@ node
   }
 
 
-    stage('Deploy to Tomcat') 
-    {
-      
-      sh """
+stage('Deploy to Tomcat') {
+    steps {
+        sh '''
+            ls -lh target/
 
-      curl -u kk:password \
---upload-file /var/lib/jenkins/workspace/scripted-way-PL-1/target/maven-web-application.war \
-"http://3.109.207.137:8080/manager/text/deploy?path=/maven-web-application&update=true"
-          
-        """
+            curl -u kk:password \
+            --upload-file target/maven-web-application.war \
+            "http://3.109.207.137:8080/manager/text/deploy?path=/maven-web-application&update=true"
+        '''
     }
+}
 
   } //try ending
   catch (e) {
