@@ -55,30 +55,30 @@ stage('Deploy to Tomcat') {
 }  // node ending
 
 def notifyBuild(String buildStatus = 'STARTED') {
-  // build status of null means successful
-  buildStatus =  buildStatus ?: 'SUCCESS'
 
-  // Default values
-  def colorName = 'RED'
-  def colorCode = '#FF0000'
-  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
-  def summary = "${subject} (${env.BUILD_URL})"
+    // build status of null means successful
+    buildStatus = buildStatus ?: 'SUCCESS'
 
-  // Override default values based on build status
-  if (buildStatus == 'STARTED') {
-    color = 'YELLOW'
-    colorCode = '#FFFF00'
-  } else if (buildStatus == 'SUCCESS') {
-     color = 'RED'
-     colorCode = '#FF0000'
-  } else {   
-    color = 'GREEN'
-    colorCode = '#27F568'
-  }
+    // Default values
+    def colorCode = '#FF0000'
+    def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+    def summary = "${subject} (${env.BUILD_URL})"
 
-  // Send notifications
-  slackSend (color: colorCode, message: summary, channel: '#shashib10')
-  
+    // Set color based on build status
+    if (buildStatus == 'STARTED') {
+        colorCode = '#FFFF00'       // Yellow
+    } else if (buildStatus == 'SUCCESS') {
+        colorCode = '#27F568'       // Green
+    } else {
+        colorCode = '#FF0000'       // Red
+    }
+
+    // Send notification
+    slackSend(
+        color: colorCode,
+        message: summary,
+        channel: '#shashib10'
+    )
 }
 
 
