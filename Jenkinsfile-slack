@@ -1,95 +1,95 @@
+node {
 
+    echo "git JOB Name: ${env.JOB_NAME}"
+    echo "build number: ${env.BUILD_NUMBER}"
 
+    def mavenHome = tool name: "maven-3.9.16"
 
-node 
-{
-   //     /var/lib/jenkins/tools/hudson.tasks.Maven_MavenInstallation/maven-3.9.16/bin
-  echo "git JOB Name: ${env.JOB_NAME}"
-  echo "build number: ${env.BUILD_NUMBER}"
-  def mavenHome=tool name: "maven-3.9.16"
-  
-  try
-  {
-     stage('git checkout')
-  {
-       notifyBuild('STARTED')
-      git branch: 'master', url: 'https://github.com/shashikiran05/maven-webapplication-project-kkfunda.git'
-  }
-  stage('compile')
-  {
-   sh "${mavenHome}/bin/mvn compile"
-  }
-   stage('Build')
-  {
-   sh "${mavenHome}/bin/mvn clean package"
-  }
-stage('SonarQube Analysis') {
+    try {
 
-        withCredentials([string(
-            credentialsId: 'sonarqube-token',
-            variable: 'SONAR_TOKEN'
-        )]) {
+        stage('git checkout') {
+
+            notifyBuild('STARTED')
+
+            git branch: 'master',
+                url: 'https://github.com/shashikiran05/maven-webapplication-project-kkfunda.git'
+        }
+
+        stage('compile') {
+
+            sh "${mavenHome}/bin/mvn compile"
+        }
+
+        stage('Build') {
+
+            sh "${mavenHome}/bin/mvn clean package"
+        }
+
+        stage('SonarQube Analysis') {
+
+            withCredentials([string(
+                credentialsId: 'sonarqube-token',
+                variable: 'SONAR_TOKEN'
+            )]) {
+
+                sh """
+                    ${mavenHome}/bin/mvn sonar:sonar \
+                      -Dsonar.host.url=http://13.203.106.166:9000 \
+                      -Dsonar.token=\$SONAR_TOKEN
+                """
+            }
+        }
+
+        stage('Deploy Artifact') {
+
+            sh "${mavenHome}/bin/mvn deploy"
+        }
+
+        stage('Deploy to Tomcat') {
 
             sh '''
-                ${mavenHome}/bin/mvn sonar:sonar \
-                  -Dsonar.host.url=http://13.203.106.166:9000 \
-                  -Dsonar.token=$SONAR_TOKEN
+                curl -u kk:password \
+                --upload-file target/maven-web-application.war \
+                "http://3.108.54.33:8080/manager/text/deploy?path=/maven-web-application&update=true"
             '''
         }
+
+    } catch (e) {
+
+        currentBuild.result = "FAILED"
+        throw e
+
+    } finally {
+
+        notifyBuild(currentBuild.result)
     }
-  stage('Deploy Artifact')
-  {
-   sh "${mavenHome}/bin/mvn deploy"
-  }
-
-
-stage('Deploy to Tomcat') {
-    sh '''
-        curl -u kk:password \
-        --upload-file target/maven-web-application.war \
-        "http://3.108.54.33:8080/manager/text/deploy?path=/maven-web-application&update=true"
-    '''
 }
 
-  } //try ending
-  catch (e) {
-   
-       currentBuild.result = "FAILED"
-
-  } finally {
-    // Success or failure, always send notifications
-    notifyBuild(currentBuild.result)       //function calling
-  }
-
-	
-}  // node ending
 
 def notifyBuild(String buildStatus = 'STARTED') {
 
-    // build status of null means successful
     buildStatus = buildStatus ?: 'SUCCESS'
 
-    // Default values
     def colorCode = '#FF0000'
     def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
     def summary = "${subject} (${env.BUILD_URL})"
 
-    // Set color based on build status
     if (buildStatus == 'STARTED') {
-        colorCode = '#FFFF00'       // Yellow
+
+        colorCode = '#FFFF00'
+
     } else if (buildStatus == 'SUCCESS') {
-        colorCode = '#27F568'       // Green
+
+        colorCode = '#27F568'
+
     } else {
-        colorCode = '#FF0000'       // Red
+
+        colorCode = '#FF0000'
     }
 
-    // Send notification
     slackSend(
         color: colorCode,
         message: summary,
         channel: '#shashib10'
     )
 }
-
-
-
