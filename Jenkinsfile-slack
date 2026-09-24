@@ -23,10 +23,20 @@ node
   {
    sh "${mavenHome}/bin/mvn clean package"
   }
-   stage('SQ REPORT')
-  {
-   sh "${mavenHome}/bin/mvn sonar:sonar"
-  }
+stage('SonarQube Analysis') {
+
+        withCredentials([string(
+            credentialsId: 'sonarqube-token',
+            variable: 'SONAR_TOKEN'
+        )]) {
+
+            sh '''
+                mvn sonar:sonar \
+                  -Dsonar.host.url=http://13.203.106.166:9000 \
+                  -Dsonar.token=$SONAR_TOKEN
+            '''
+        }
+    }
   stage('Deploy Artifact')
   {
    sh "${mavenHome}/bin/mvn deploy"
