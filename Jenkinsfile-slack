@@ -23,25 +23,20 @@ node
   {
    sh "${mavenHome}/bin/mvn clean package"
   }
- /*  stage('SQ REPORT')
+  stage('SQ REPORT')
   {
    sh "${mavenHome}/bin/mvn sonar:sonar"
-  } */
+  }
   stage('Deploy Artifact')
   {
    sh "${mavenHome}/bin/mvn deploy"
   }
-
-
-    stage('Deploy to Tomcat') 
-    {
-      
+  stage('Deploy to Tomcat') 
+  {     
       sh """
-
       curl -u kk:password \
 --upload-file /var/lib/jenkins/workspace/scripted-way-PL-1/target/maven-web-application.war \
-"http://13.235.77.122:8080/manager/text/deploy?path=/maven-web-application&update=true"
-          
+"http://3.108.54.33:8080/manager/text/deploy?path=/maven-web-application&update=true"
         """
     }
 
@@ -81,7 +76,7 @@ def notifyBuild(String buildStatus = 'STARTED') {
   }
 
   // Send notifications
-  slackSend (color: colorCode, message: summary, channel: '#airtel-project')
+  slackSend (color: colorCode, message: summary, channel: '#shashib10')
   
 }
 
