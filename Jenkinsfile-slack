@@ -31,7 +31,7 @@ stage('SonarQube Analysis') {
         )]) {
 
             sh '''
-                mvn sonar:sonar \
+                ${mavenHome}/bin/mvn sonar:sonar \
                   -Dsonar.host.url=http://13.203.106.166:9000 \
                   -Dsonar.token=$SONAR_TOKEN
             '''
