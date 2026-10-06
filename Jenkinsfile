@@ -76,9 +76,14 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo 'Running SonarQube analysis...'
-
                 sh 'mvn sonar:sonar'
             }
+        }
+        stage('Deploy to Nexus') {
+            steps {
+                echo 'Deploying artifact to Nexus...'
+                sh 'mvn deploy -DskipTests'
+             }
         }
 
         stage('Archive Artifact') {
